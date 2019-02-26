@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommand>D:\Steam\steamapps\common\Delta Force Black Hawk Down\dfbhd.exe</LocalDebuggerCommand>
+    <LocalDebuggerWorkingDirectory>D:\Steam\steamapps\common\Delta Force Black Hawk Down\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>/w</LocalDebuggerCommandArguments>
+  </PropertyGroup>
+</Project>
