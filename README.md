@@ -5,3 +5,6 @@ Wrapper for Delta Force: Black Hawk Down to make it easy to run the game in wide
 * Resolution override (replaces 1280x1024 resolution)
 * FPS Limiter
 * FOV Customisation (based on Hor+ FOV scaling)
+
+# Known issues
+* Doesn't work with Steam version as its exe is encrypted. Need to find a workaround to hook it just after it gets loaded fully into memory.

@@ -5,6 +5,10 @@
 #include "Direct3DDevice8Wrapper.h"
 #include "HookFunctions.h"
 #include "VariousFunctions.h"
+#if _DEBUG
+#include <iostream>
+#endif // _DEBUG
+
 
 //Sources used from:
 //https://bitbucket.org/andrewcooper/windower_open
@@ -118,15 +122,23 @@ void ForceWindowed(D3DPRESENT_PARAMETERS *pPresentationParameters)
     SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, left, top, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 }
 
-HRESULT Direct3D8Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DDevice8 **ppReturnedDeviceInterface) {
+HRESULT Direct3D8Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DDevice8 **ppReturnedDeviceInterface)
+{
+	MessageBox(NULL, "Stop", "Stop", MB_OK);
+
+	printf("Creating D3D8 Device using wrapper\n");
     IDirect3DDevice8* Direct3DDevice8;
 
-    if (bForceWindowedMode)
-        ForceWindowed(pPresentationParameters);
+	if (bForceWindowedMode)
+	{
+		printf("Forcing Windowed mode\n");
+		ForceWindowed(pPresentationParameters);
+	}
 
     HRESULT Result = Direct3D8->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, &Direct3DDevice8);
     *ppReturnedDeviceInterface = new Direct3DDevice8Wrapper(&Direct3DDevice8, pPresentationParameters);
-    return Result;
+
+	return Result;
 }
 
 HRESULT Direct3DDevice8Wrapper::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters) {
@@ -138,6 +150,27 @@ HRESULT Direct3DDevice8Wrapper::Reset(D3DPRESENT_PARAMETERS *pPresentationParame
     return Direct3DDevice8->Reset(PresentationParameters);
 }
 
+HMODULE baseModule;
+DWORD steamHookReturn;
+void __declspec(naked) SteamDetour()
+{
+	_asm
+	{
+		//8B EC 83 EC 0C
+		mov ebp, esp
+		sub esp, 0Ch
+	}
+
+	*(int*)(((DWORD)baseModule) + 0x6AA74) = settings.Width;
+	*(int*)(((DWORD)baseModule) + 0x6AA79) = settings.Height;
+	*(byte*)((DWORD)baseModule + 0xF44AD + 0x8) = settings.FOV;
+
+	__asm 
+	{
+		jmp [steamHookReturn]
+	}
+}
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     char path[MAX_PATH];
@@ -145,6 +178,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
     case DLL_PROCESS_ATTACH:
     {
+#if  _DEBUG
+		AllocConsole();
+		FILE *file = nullptr;
+		freopen_s(&file, "CONOUT$", "w", stdout);
+#endif
+
         CopyMemory(path + GetSystemDirectory(path, MAX_PATH - 9), "\\d3d8.dll", 10);
         d3d8.dll = LoadLibrary(path);
         if (d3d8.dll == false)
@@ -197,11 +236,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         }
 
 		//Overrides
-		HMODULE baseModule = GetModuleHandle(NULL);
+		MessageBox(NULL, "Stop", "Stop", MB_OK);
+		baseModule = GetModuleHandle(NULL);
 		UnprotectModule(baseModule);
-		*(int*)(((DWORD)baseModule) + 0x6AA74) = settings.Width;
-		*(int*)(((DWORD)baseModule) + 0x6AA79) = settings.Height;
-		*(byte*)((DWORD)baseModule + 0xF44AD + 0x8) = settings.FOV;
+
+		printf("Resolution override %ix%i, with new horizontal FOV of %i\n", settings.Width, settings.Height, settings.FOV);
+
+		//Hook((DWORD)baseModule + 0xB72202, SteamDetour, &steamHookReturn, 0x5);
     }
     break;
 

@@ -36,3 +36,6 @@ source/log/*
 
 # Intermediate dirs
 source/obj/*
+
+# Garbo
+.vs/*
