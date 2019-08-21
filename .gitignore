@@ -39,3 +39,5 @@ source/obj/*
 
 # Garbo
 .vs/*
+BHD_Asi/Debug/*
+BHD_Asi/Release/*
