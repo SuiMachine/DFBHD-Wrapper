@@ -1,7 +1,4 @@
-#include <Windows.h>
-#include "HookFunctions.h"
-#include "BHD_Hacks.h"
-#include <detours.h>
+#include "BHD_Asi.h"
 
 BHD_Hacks* mainHack;
 
@@ -22,30 +19,20 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
+#if _DEBUG
+		//MessageBox(NULL, "Stop", "Stop", 0);
+#endif
 		HMODULE baseModule = GetModuleHandle(NULL);
 		char baseModuleName[MAX_PATH];
 		GetModuleFileName(baseModule, baseModuleName, sizeof(baseModuleName));
-		int indexOfLastPathNode = StrEndsWith(baseModuleName, sizeof(baseModuleName), '\\') + 1;
-		char exeName[MAX_PATH];
-		strcpy_s(exeName, baseModuleName + indexOfLastPathNode);
-		StrToLower(exeName, sizeof(exeName));
 
-		if (std::strstr((const char*)& exeName, "dfbhd.exe"))
+		auto pathCheck = std::regex(".+\\\\(dfbhd.exe|dfbhdlc.exe)", std::regex_constants::icase);
+		if (std::regex_match(baseModuleName, pathCheck))
 		{
+			MessageBox(NULL, "About to...", "Test", 0);
 			mainHack = new BHD_Hacks();
+			mainHack->Hook();
 		}
-
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-		DetourAttach(&(PVOID&)TrueCreateWindowExA, DetourCreateWindowExA);
-		DetourTransactionCommit();
-
-	}
-	else if (reason == DLL_PROCESS_DETACH) {
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-		DetourDetach(&(PVOID&)TrueCreateWindowExA, DetourCreateWindowExA);
-		DetourTransactionCommit();
 	}
 	return TRUE;
 }
