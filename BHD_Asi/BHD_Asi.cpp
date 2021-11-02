@@ -29,7 +29,6 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 		auto pathCheck = std::regex(".+\\\\(dfbhd.exe|dfbhdlc.exe)", std::regex_constants::icase);
 		if (std::regex_match(baseModuleName, pathCheck))
 		{
-			MessageBox(NULL, "About to...", "Test", 0);
 			mainHack = new BHD_Hacks();
 			mainHack->Hook();
 		}
