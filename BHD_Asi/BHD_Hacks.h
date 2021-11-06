@@ -9,7 +9,7 @@ class BHD_Hacks
 	{
 		int Width;
 		int Height;
-		int FOV;
+		float FOV;
 	};
 
 public:
