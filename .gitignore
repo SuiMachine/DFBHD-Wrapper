@@ -40,3 +40,5 @@ source/obj/*
 .vs/*
 BHD_Asi/Debug/*
 BHD_Asi/Release/*
+
+*.zip

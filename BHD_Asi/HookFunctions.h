@@ -2,17 +2,35 @@
 #include <Windows.h>
 #include <math.h>
 
-static bool HookInsideFunction(DWORD targetToHook, void* ourFunction, DWORD* returnAddress, int overrideLenght)
+//static bool HookInsideFunction(DWORD targetToHook, void* ourFunction, DWORD* returnAddress, int overrideLenght)
+//{
+//	if (overrideLenght < 5)
+//		return false;
+//	*returnAddress = targetToHook + overrideLenght;
+//	DWORD curProtectionFlag;
+//	VirtualProtect((void*)targetToHook, overrideLenght, PAGE_EXECUTE_READWRITE, &curProtectionFlag);
+//	memset((void*)targetToHook, 0x90, overrideLenght);
+//	DWORD relativeAddress = ((DWORD)ourFunction - (DWORD)targetToHook) - 5;
+//	*(BYTE*)targetToHook = 0xE9;
+//	*(DWORD*)((DWORD)targetToHook + 1) = relativeAddress;
+//	DWORD temp;
+//	VirtualProtect((void*)targetToHook, overrideLenght, curProtectionFlag, &temp);
+//	return true;
+//}
+
+static bool HookJmpTrampoline(intptr_t targetToHook, void* ourFunction, int overrideLenght)
 {
 	if (overrideLenght < 5)
 		return false;
-	*returnAddress = targetToHook + overrideLenght;
+
 	DWORD curProtectionFlag;
 	VirtualProtect((void*)targetToHook, overrideLenght, PAGE_EXECUTE_READWRITE, &curProtectionFlag);
 	memset((void*)targetToHook, 0x90, overrideLenght);
 	DWORD relativeAddress = ((DWORD)ourFunction - (DWORD)targetToHook) - 5;
+
 	*(BYTE*)targetToHook = 0xE9;
 	*(DWORD*)((DWORD)targetToHook + 1) = relativeAddress;
+
 	DWORD temp;
 	VirtualProtect((void*)targetToHook, overrideLenght, curProtectionFlag, &temp);
 	return true;
