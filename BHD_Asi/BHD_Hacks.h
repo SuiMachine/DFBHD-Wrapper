@@ -5,16 +5,20 @@
 
 class BHD_Hacks
 {
-	struct settingsOverrideStr
+	struct SettingsOverrideStr
 	{
+	public:
 		int Width;
 		int Height;
 		float FOV;
+		float HorPlusFOV;
+		float FOVMultiplier;
 	};
 
 public:
 	BHD_Hacks();
 	void Hook();
-	settingsOverrideStr* Settings;
+	static void WriteFOV();
+	static SettingsOverrideStr Settings;
 };
 
