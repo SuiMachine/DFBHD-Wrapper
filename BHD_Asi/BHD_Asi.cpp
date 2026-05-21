@@ -13,7 +13,7 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 		char baseModuleName[MAX_PATH];
 		GetModuleFileName(baseModule, baseModuleName, sizeof(baseModuleName));
 
-		auto pathCheck = std::regex(".+\\\\(dfbhd.exe|dfbhdlc.exe|dfbhd.exe.unpacked.exe)", std::regex_constants::icase);
+		auto pathCheck = std::regex(".+\\\\(dfbhd.exe|dfbhdlc.exe|dfbhd.exe.unpacked.exe|dfbhdts.exe)", std::regex_constants::icase);
 		
 		bool tryAndHook = false;
 		if (std::regex_match(baseModuleName, pathCheck))
